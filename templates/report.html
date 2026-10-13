@@ -1,0 +1,609 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Compte-Rendu de Volumétrie Hépatique - {{ result.patient_info.patient_name }}</title>
+    <style>
+        @page {
+            size: A4 portrait;
+            margin: 15mm;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            color: #1e293b;
+            background: #fff;
+            line-height: 1.45;
+            margin: 0;
+            padding: 20px;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            border-bottom: 2px solid #0284c7;
+            padding-bottom: 12px;
+            margin-bottom: 20px;
+        }
+
+        .header-title h1 {
+            font-size: 20px;
+            margin: 0 0 4px 0;
+            color: #0369a1;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .header-title div {
+            font-size: 13px;
+            color: #64748b;
+        }
+
+        .header-meta {
+            text-align: right;
+            font-size: 12px;
+            color: #64748b;
+        }
+
+        .section {
+            margin-bottom: 18px;
+        }
+
+        .section-title {
+            font-size: 14px;
+            font-weight: 700;
+            color: #0f172a;
+            border-bottom: 1px solid #e2e8f0;
+            padding-bottom: 4px;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+            letter-spacing: 0.4px;
+        }
+
+        .info-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            font-size: 13px;
+        }
+
+        table.meta-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        table.meta-table th, table.meta-table td {
+            padding: 5px 8px;
+            text-align: left;
+            border-bottom: 1px solid #f1f5f9;
+        }
+
+        table.meta-table th {
+            color: #64748b;
+            font-weight: 600;
+            width: 45%;
+        }
+
+        /* KPI Banner */
+        .kpi-banner {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+            gap: 12px;
+            margin: 15px 0;
+        }
+
+        .kpi-box {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 6px;
+            padding: 12px;
+            text-align: center;
+        }
+
+        .kpi-box.main {
+            border-left: 4px solid #ef4444;
+            background: #fef2f2;
+        }
+
+        .kpi-box.sec {
+            border-left: 4px solid #0284c7;
+            background: #f0f9ff;
+        }
+
+        .kpi-box.density {
+            border-left: 4px solid #f59e0b;
+            background: #fffbeb;
+        }
+
+        .kpi-box.spleen {
+            border-left: 4px solid #8b5cf6;
+            background: #f5f3ff;
+        }
+
+        .kpi-box-title {
+            font-size: 11px;
+            text-transform: uppercase;
+            font-weight: 700;
+            color: #64748b;
+            margin-bottom: 4px;
+        }
+
+        .kpi-box-val {
+            font-size: 22px;
+            font-weight: 800;
+            color: #0f172a;
+        }
+
+        .kpi-box-sub {
+            font-size: 11px;
+            color: #64748b;
+            margin-top: 3px;
+        }
+
+        /* Galerie coupes */
+        .slice-images {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin-top: 8px;
+        }
+
+        .slice-card {
+            border: 1px solid #e2e8f0;
+            border-radius: 4px;
+            overflow: hidden;
+            text-align: center;
+        }
+
+        .slice-card img {
+            width: 100%;
+            height: auto;
+            display: block;
+        }
+
+        .slice-card-caption {
+            font-size: 11px;
+            color: #64748b;
+            padding: 4px;
+            background: #f8fafc;
+            font-weight: 600;
+        }
+
+        /* Conclusion */
+        .conclusion-box {
+            background: #f8fafc;
+            border: 1px solid #cbd5e1;
+            border-radius: 6px;
+            padding: 12px 15px;
+            font-size: 13px;
+            line-height: 1.5;
+        }
+
+        .signature-row {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 30px;
+            padding-top: 15px;
+            border-top: 1px dashed #cbd5e1;
+            font-size: 12px;
+            color: #64748b;
+        }
+
+        .no-print-bar {
+            background: #0f172a;
+            color: #fff;
+            padding: 10px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin: -20px -20px 20px -20px;
+        }
+
+        .btn-print {
+            background: #0284c7;
+            color: #fff;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        @media print {
+            .no-print-bar {
+                display: none;
+            }
+            body {
+                padding: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Barre d'outils d'impression (masquée lors de l'impression) -->
+    <div class="no-print-bar">
+        <div><strong>HepaVol</strong> • Compte-Rendu Médical de Volumétrie</div>
+        <button class="btn-print" onclick="window.print()">🖨️ Imprimer / Enregistrer en PDF</button>
+    </div>
+
+    <!-- En-tête -->
+    <div class="header">
+        <div class="header-title">
+            <h1>Compte-Rendu de Volumétrie Hépatique par Scanner</h1>
+            <div>Assistance par Intelligence Artificielle (3D Slicer / TotalSegmentator)</div>
+        </div>
+        <div class="header-meta">
+            <div>Édité le : <strong>{{ now }}</strong></div>
+            <div>Identifiant analyse : {{ job_id }}</div>
+        </div>
+    </div>
+
+    <!-- Informations Patient & Acquisition -->
+    <div class="section">
+        <div class="section-title">Informations Administratives & Techniques</div>
+        <div class="info-grid">
+            <table class="meta-table">
+                <tr><th>Patient :</th><td><strong>{{ result.patient_info.patient_name }}</strong></td></tr>
+                <tr><th>Identifiant (ID) :</th><td>{{ result.patient_info.patient_id }}</td></tr>
+                <tr><th>Sexe / Âge :</th><td>{{ result.patient_info.patient_sex or '--' }} / {{ result.patient_info.patient_age or '--' }}</td></tr>
+                <tr><th>Poids / Taille :</th><td>{% if result.patient_info.patient_weight or (result.lille_criteria and result.lille_criteria.patient_weight_kg) %}{{ result.patient_info.patient_weight or result.lille_criteria.patient_weight_kg }} kg{% if result.patient_info.patient_height %} / {{ result.patient_info.patient_height }} cm{% endif %}{% if result.theoretical_volume and result.theoretical_volume.bsa_m2 %} (BSA: {{ result.theoretical_volume.bsa_m2 }} m²){% endif %}{% else %}Non renseignés{% endif %}</td></tr>
+                <tr><th>Date de l'examen :</th><td>{{ result.patient_info.study_date or '--' }}</td></tr>
+            </table>
+
+            <table class="meta-table">
+                <tr><th>Modalité :</th><td>{{ result.patient_info.modality }} (Scanner hélicoïdal)</td></tr>
+                <tr><th>Épaisseur de coupe :</th><td>{{ result.acquisition_info.slice_thickness_mm }} mm</td></tr>
+                <tr><th>Espacement Voxel :</th><td>{{ result.acquisition_info.spacing_mm|join(' × ') if result.acquisition_info.spacing_mm else '--' }} mm</td></tr>
+                <tr><th>Modèle Scanner :</th><td>{{ result.patient_info.manufacturer }} {{ result.patient_info.model_name }}</td></tr>
+            </table>
+        </div>
+    </div>
+
+    <!-- Bannière des Volumes Clés -->
+    <div class="section">
+        <div class="section-title">Mesures Volumétriques Hépatiques</div>
+        <div class="kpi-banner">
+            <div class="kpi-box main">
+                <div class="kpi-box-title">Volume Hépatique Total (VHT)</div>
+                <div class="kpi-box-val">{{ result.liver.volume_cm3 }} cm³</div>
+                <div class="kpi-box-sub">Soit {{ result.liver.volume_liters }} Litre(s)</div>
+            </div>
+
+            <div class="kpi-box sec">
+                <div class="kpi-box-title">Volume Théorique (Vauthey)</div>
+                <div class="kpi-box-val">
+                    {% if result.theoretical_volume %}
+                        {{ result.theoretical_volume.tlv_vauthey_cm3 }} cm³
+                    {% else %}
+                        --
+                    {% endif %}
+                </div>
+                <div class="kpi-box-sub">
+                    {% if result.theoretical_volume %}
+                        Rapport mesuré/attendu : {{ result.theoretical_volume.ratio_measured_to_theoretical_pct }}%
+                    {% else %}
+                        Poids/taille non renseignés
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="kpi-box density">
+                <div class="kpi-box-title">Densité & Stéatose</div>
+                <div class="kpi-box-val">{{ result.liver.mean_hu }} HU</div>
+                <div class="kpi-box-sub">
+                    {% if result.steatosis_evaluation %}
+                        {{ result.steatosis_evaluation.grade }}
+                    {% else %}
+                        Normale [50-65 HU]
+                    {% endif %}
+                </div>
+            </div>
+
+            {% if result.hepato_splenic_ratio %}
+            <div class="kpi-box spleen">
+                <div class="kpi-box-title">Ratio Foie / Rate</div>
+                <div class="kpi-box-val">{{ result.hepato_splenic_ratio.ratio }}</div>
+                <div class="kpi-box-sub">Rate: {{ result.hepato_splenic_ratio.spleen_volume_cm3 }} cm³ ({{ result.hepato_splenic_ratio.status }})</div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Répartition Sectorielle et Segments de Couinaud (si disponible) -->
+    {% if result.couinaud_segments or (result.liver and result.liver.is_segmented_by_couinaud) %}
+    {% set couinaud = result.couinaud_segments or result.liver.couinaud_segments %}
+    <div class="section">
+        <div class="section-title">Analyse Sectorielle & Segments de Couinaud (I à VIII)</div>
+        
+        <!-- Sous-totaux sectoriels -->
+        <table class="meta-table" style="margin-bottom: 10px; background: #f8fafc; border: 1px solid #e2e8f0;">
+            <tr>
+                <td style="width: 25%;"><strong>Foie Droit (Seg. V-VIII) :</strong> {{ result.liver.right_liver_volume_cm3 or '--' }} cm³ ({{ result.liver.right_liver_pct or '--' }}%)</td>
+                <td style="width: 25%;"><strong>Foie Gauche (Seg. II-IV) :</strong> {{ result.liver.left_liver_volume_cm3 or '--' }} cm³ ({{ result.liver.left_liver_pct or '--' }}%)</td>
+                <td style="width: 25%;"><strong>Lobe Gauche (Seg. II+III) :</strong> {{ result.liver.left_lateral_volume_cm3 or '--' }} cm³ ({{ result.liver.left_lateral_pct or '--' }}%)</td>
+                <td style="width: 25%;"><strong>Lobe Caudé (Seg. I) :</strong> {{ result.liver.caudate_lobe_volume_cm3 or '--' }} cm³ ({{ result.liver.caudate_lobe_pct or '--' }}%)</td>
+            </tr>
+        </table>
+
+        <!-- Tableau des 8 segments -->
+        <table style="width: 100%; border-collapse: collapse; font-size: 8.5pt;">
+            <thead>
+                <tr style="background: #f1f5f9; border-bottom: 2px solid #cbd5e1;">
+                    <th style="padding: 5px 8px; text-align: left;">Segment</th>
+                    <th style="padding: 5px 8px; text-align: left;">Dénomination Anatomique</th>
+                    <th style="padding: 5px 8px; text-align: left;">Secteur / Lobe</th>
+                    <th style="padding: 5px 8px; text-align: right;">Volume (cm³)</th>
+                    <th style="padding: 5px 8px; text-align: right;">Part relative (%)</th>
+                    <th style="padding: 5px 8px; text-align: right;">Densité Moyenne</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for seg_key, seg in couinaud.items() %}
+                <tr style="border-bottom: 1px solid #e2e8f0;">
+                    <td style="padding: 4px 8px; font-weight: bold; color: {{ seg.color_hex or '#0284c7' }};">
+                        <span style="display: inline-block; width: 9px; height: 9px; border-radius: 50%; background-color: {{ seg.color_hex or '#0284c7' }}; margin-right: 6px; vertical-align: middle;"></span>
+                        {{ seg.couinaud_label or seg.name }}
+                    </td>
+                    <td style="padding: 4px 8px;">{{ seg.anatomical_description or '--' }}</td>
+                    <td style="padding: 4px 8px;">{{ seg.lobe or 'Foie' }}</td>
+                    <td style="padding: 4px 8px; text-align: right; font-weight: bold;">{{ seg.volume_cm3 }} cm³</td>
+                    <td style="padding: 4px 8px; text-align: right;">{{ seg.pct_of_liver }}%</td>
+                    <td style="padding: 4px 8px; text-align: right;">{{ seg.mean_hu }} HU</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% endif %}
+
+    <!-- Critères de Résécabilité de l'Équipe de Lille -->
+    {% if result.lille_criteria %}
+    <div class="section">
+        <div class="section-title">Critères de Résécabilité & Futur Foie Restant (Équipe de Lille - CHU de Lille)</div>
+        <div style="font-size: 11px; color: #475569; margin-bottom: 8px;">
+            Rapport du volume hépatique au poids corporel du patient (<strong>{{ result.lille_criteria.patient_weight_kg }} kg</strong>).
+            <em>Référence : Truant S, Pruvot F-R et al., J Am Coll Surg 2007;204:22-33. Seuil de sécurité chirurgicale : Futur Foie Restant (FFR) / Poids corporel ≥ 0,5% sur foie non-cirrhotique.</em>
+        </div>
+
+        <table style="width: 100%; border-collapse: collapse; font-size: 9pt;">
+            <thead>
+                <tr style="background: #f1f5f9; border-bottom: 2px solid #cbd5e1;">
+                    <th style="padding: 6px 8px; text-align: left;">Territoire Hépatique</th>
+                    <th style="padding: 6px 8px; text-align: left;">Segments Anatomiques</th>
+                    <th style="padding: 6px 8px; text-align: right;">Volume (cm³)</th>
+                    <th style="padding: 6px 8px; text-align: right;">% Foie Total</th>
+                    <th style="padding: 6px 8px; text-align: right;">% Poids Corporel</th>
+                    <th style="padding: 6px 8px; text-align: center;">Évaluation FFR (Seuil ≥ 0.5%)</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr style="border-bottom: 1px solid #e2e8f0; font-weight: bold; background: #fafafa;">
+                    <td style="padding: 5px 8px;">Foie Total</td>
+                    <td style="padding: 5px 8px;">I à VIII</td>
+                    <td style="padding: 5px 8px; text-align: right;">{{ result.liver.volume_cm3 }} cm³</td>
+                    <td style="padding: 5px 8px; text-align: right;">100 %</td>
+                    <td style="padding: 5px 8px; text-align: right; color: #0284c7;">{{ result.lille_criteria.total_liver_bw_pct }} %</td>
+                    <td style="padding: 5px 8px; text-align: center; font-size: 8pt; color: #64748b;">Norme adulte [2.0% - 2.7%]</td>
+                </tr>
+                <tr style="border-bottom: 1px solid #e2e8f0;">
+                    <td style="padding: 5px 8px; color: #0284c7; font-weight: 600;">Foie Droit</td>
+                    <td style="padding: 5px 8px;">V, VI, VII, VIII</td>
+                    <td style="padding: 5px 8px; text-align: right;">{{ result.liver.right_liver_volume_cm3 or '--' }} cm³</td>
+                    <td style="padding: 5px 8px; text-align: right;">{{ result.liver.right_liver_pct or '--' }} %</td>
+                    <td style="padding: 5px 8px; text-align: right; font-weight: bold; color: #0284c7;">{{ result.lille_criteria.right_liver_bw_pct or '--' }} %</td>
+                    <td style="padding: 5px 8px; text-align: center;">
+                        {% if result.lille_criteria.right_liver_safe %}
+                            <span style="background: #dcfce7; color: #166534; padding: 2px 6px; border-radius: 4px; font-weight: bold; font-size: 8pt;">✓ Sécurisé (≥ 0.5%)</span>
+                        {% else %}
+                            <span style="background: #fee2e2; color: #991b1b; padding: 2px 6px; border-radius: 4px; font-weight: bold; font-size: 8pt;">⚠ Risque PHLF (&lt; 0.5%)</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                <tr style="border-bottom: 1px solid #e2e8f0;">
+                    <td style="padding: 5px 8px; color: #10b981; font-weight: 600;">Foie Gauche</td>
+                    <td style="padding: 5px 8px;">II, III, IV</td>
+                    <td style="padding: 5px 8px; text-align: right;">{{ result.liver.left_liver_volume_cm3 or '--' }} cm³</td>
+                    <td style="padding: 5px 8px; text-align: right;">{{ result.liver.left_liver_pct or '--' }} %</td>
+                    <td style="padding: 5px 8px; text-align: right; font-weight: bold; color: #10b981;">{{ result.lille_criteria.left_liver_bw_pct or '--' }} %</td>
+                    <td style="padding: 5px 8px; text-align: center;">
+                        {% if result.lille_criteria.left_liver_safe %}
+                            <span style="background: #dcfce7; color: #166534; padding: 2px 6px; border-radius: 4px; font-weight: bold; font-size: 8pt;">✓ Sécurisé (≥ 0.5%)</span>
+                        {% else %}
+                            <span style="background: #fee2e2; color: #991b1b; padding: 2px 6px; border-radius: 4px; font-weight: bold; font-size: 8pt;">⚠ Risque PHLF (&lt; 0.5%)</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                <tr style="border-bottom: 1px solid #e2e8f0;">
+                    <td style="padding: 5px 8px; color: #f43f5e; font-weight: 600;">Lobe Gauche (Secteur Latéral)</td>
+                    <td style="padding: 5px 8px;">II, III</td>
+                    <td style="padding: 5px 8px; text-align: right;">{{ result.liver.left_lateral_volume_cm3 or '--' }} cm³</td>
+                    <td style="padding: 5px 8px; text-align: right;">{{ result.liver.left_lateral_pct or '--' }} %</td>
+                    <td style="padding: 5px 8px; text-align: right; font-weight: bold; color: #f43f5e;">{{ result.lille_criteria.left_lateral_lobe_bw_pct or '--' }} %</td>
+                    <td style="padding: 5px 8px; text-align: center;">
+                        {% if result.lille_criteria.left_lateral_safe %}
+                            <span style="background: #dcfce7; color: #166534; padding: 2px 6px; border-radius: 4px; font-weight: bold; font-size: 8pt;">✓ Sécurisé (≥ 0.5%)</span>
+                        {% else %}
+                            <span style="background: #fee2e2; color: #991b1b; padding: 2px 6px; border-radius: 4px; font-weight: bold; font-size: 8pt;">⚠ Risque PHLF (&lt; 0.5%)</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% if result.liver.caudate_lobe_volume_cm3 %}
+                <tr style="border-bottom: 1px solid #e2e8f0;">
+                    <td style="padding: 5px 8px; color: #d97706; font-weight: 600;">Lobe Caudé (Spigel)</td>
+                    <td style="padding: 5px 8px;">I</td>
+                    <td style="padding: 5px 8px; text-align: right;">{{ result.liver.caudate_lobe_volume_cm3 }} cm³</td>
+                    <td style="padding: 5px 8px; text-align: right;">{{ result.liver.caudate_lobe_pct }} %</td>
+                    <td style="padding: 5px 8px; text-align: right; font-weight: bold; color: #d97706;">{{ result.lille_criteria.caudate_lobe_bw_pct or '--' }} %</td>
+                    <td style="padding: 5px 8px; text-align: center; font-size: 8pt; color: #64748b;">Segment autonome</td>
+                </tr>
+                {% endif %}
+            </tbody>
+        </table>
+    </div>
+    {% endif %}
+
+    <!-- Diagnostic Parenchymateux : Stéatose & Balance Hépato-Splénique -->
+    {% if result.steatosis_evaluation or result.hepato_splenic_ratio %}
+    <div class="section">
+        <div class="section-title">Diagnostic Parenchymateux : Atténuation TDM, Stéatose & Balance Hépato-Splénique</div>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 10px;">
+            <!-- Carte Stéatose -->
+            <div style="border: 1px solid #e2e8f0; border-radius: 6px; padding: 12px; background: #fff;">
+                <div style="font-weight: 700; color: #0f172a; font-size: 13px; margin-bottom: 8px; border-bottom: 1px solid #f1f5f9; padding-bottom: 5px;">
+                    Évaluation de la Stéatose Hépatique (Densité TDM)
+                </div>
+                <table style="width: 100%; font-size: 12px; border-collapse: collapse;">
+                    <tr>
+                        <td style="padding: 4px 0; color: #64748b;">Atténuation hépatique moyenne :</td>
+                        <td style="padding: 4px 0; font-weight: bold; text-align: right;">{{ result.liver.mean_hu }} HU</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 4px 0; color: #64748b;">Dispersion (Écart-type) :</td>
+                        <td style="padding: 4px 0; text-align: right;">{% if result.liver.std_hu %}± {{ result.liver.std_hu }} HU{% else %}<span style="color: #94a3b8;">Non disponible</span>{% endif %}</td>
+                    </tr>
+                    {% if result.steatosis_evaluation %}
+                    <tr>
+                        <td style="padding: 4px 0; color: #64748b;">Grade de stéatose estimé :</td>
+                        <td style="padding: 4px 0; font-weight: bold; text-align: right;">
+                            <span style="background: {{ result.steatosis_evaluation.color }}22; color: {{ result.steatosis_evaluation.color }}; padding: 2px 6px; border-radius: 4px;">
+                                {{ result.steatosis_evaluation.grade }}
+                            </span>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 4px 0; color: #64748b;">Infiltration graisseuse estimée :</td>
+                        <td style="padding: 4px 0; font-weight: 600; text-align: right;">{{ result.steatosis_evaluation.infiltration_est }}</td>
+                    </tr>
+                    {% if result.steatosis_evaluation.spleen_mean_hu is defined and result.steatosis_evaluation.spleen_mean_hu is not none %}
+                    <tr>
+                        <td style="padding: 4px 0; color: #64748b;">Atténuation splénique :</td>
+                        <td style="padding: 4px 0; text-align: right;">{{ result.steatosis_evaluation.spleen_mean_hu }} HU</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 4px 0; color: #64748b;">Gradient Foie - Rate (ΔHU) :</td>
+                        <td style="padding: 4px 0; font-weight: bold; text-align: right; color: {% if result.steatosis_evaluation.liver_spleen_diff_hu >= 0 %}#166534{% elif result.steatosis_evaluation.liver_spleen_diff_hu >= -9 %}#d97706{% else %}#dc2626{% endif %};">
+                            {{ '%+.1f'|format(result.steatosis_evaluation.liver_spleen_diff_hu) }} HU
+                        </td>
+                    </tr>
+                    {% endif %}
+                    {% endif %}
+                </table>
+                {% if result.steatosis_evaluation %}
+                <div style="font-size: 11px; color: #64748b; background: #f8fafc; padding: 6px 8px; border-radius: 4px; margin-top: 8px; line-height: 1.4;">
+                    <em>Note diagnostique :</em> {{ result.steatosis_evaluation.note }}
+                    {% if result.steatosis_evaluation.differential_interpretation %}
+                    <br><em>Index splénique :</em> {{ result.steatosis_evaluation.differential_interpretation }}
+                    {% endif %}
+                </div>
+                {% endif %}
+            </div>
+
+            <!-- Carte Balance Hépato-Splénique -->
+            <div style="border: 1px solid #e2e8f0; border-radius: 6px; padding: 12px; background: #fff;">
+                <div style="font-weight: 700; color: #0f172a; font-size: 13px; margin-bottom: 8px; border-bottom: 1px solid #f1f5f9; padding-bottom: 5px;">
+                    Balance Volumétrique Hépato-Splénique
+                </div>
+                <table style="width: 100%; font-size: 12px; border-collapse: collapse;">
+                    <tr>
+                        <td style="padding: 4px 0; color: #64748b;">Volume Foie Total :</td>
+                        <td style="padding: 4px 0; font-weight: bold; text-align: right;">{{ result.liver.volume_cm3 }} cm³</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 4px 0; color: #64748b;">Volume Splénique (Rate) :</td>
+                        <td style="padding: 4px 0; font-weight: bold; text-align: right;">{{ result.spleen.volume_cm3 if result.spleen else (result.hepato_splenic_ratio.spleen_volume_cm3 if result.hepato_splenic_ratio else '--') }} cm³</td>
+                    </tr>
+                    {% if result.hepato_splenic_ratio %}
+                    <tr>
+                        <td style="padding: 4px 0; color: #64748b;">Rapport Foie / Rate :</td>
+                        <td style="padding: 4px 0; font-weight: 800; font-size: 14px; text-align: right; color: #8b5cf6;">
+                            {{ result.hepato_splenic_ratio.ratio }}
+                        </td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 4px 0; color: #64748b;">Statut volumétrique :</td>
+                        <td style="padding: 4px 0; text-align: right;">
+                            <span style="background: {{ result.hepato_splenic_ratio.status_color }}22; color: {{ result.hepato_splenic_ratio.status_color }}; padding: 2px 6px; border-radius: 4px; font-weight: bold;">
+                                {{ result.hepato_splenic_ratio.status }} (Norme : {{ result.hepato_splenic_ratio.reference_range }})
+                            </span>
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="2" style="padding: 10px 0; color: #94a3b8; font-size: 11px; text-align: center; font-style: italic;">
+                            Volume splénique non mesuré ou non renseigné.
+                        </td>
+                    </tr>
+                    {% endif %}
+                </table>
+                {% if result.hepato_splenic_ratio %}
+                <div style="font-size: 11px; color: #64748b; background: #f8fafc; padding: 6px 8px; border-radius: 4px; margin-top: 8px; line-height: 1.4;">
+                    <em>Signification clinique :</em> {{ result.hepato_splenic_ratio.interpretation }}
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Coupes Axiales Scanner d'Illustration -->
+    {% if result.slice_previews and result.slice_previews|length > 0 %}
+    <div class="section">
+        <div class="section-title">Contrôle Visuel de Segmentation (Coupes Axiales CT avec Fenêtrage Abdominal)</div>
+        <div style="font-size: 8.5pt; color: #64748b; margin-top: -4px; margin-bottom: 8px;">
+            Orientation radiologique anatomique : <strong>Antérieur en haut, Postérieur / table au bas, Droite patient à gauche de l'image</strong>.
+        </div>
+        <div class="slice-images">
+            {% for sl in result.slice_previews %}
+            <div class="slice-card">
+                <img src="/api/files/{{ job_id }}/{{ sl.filename }}" alt="Coupe {{ sl.label }}">
+                <div class="slice-card-caption">Coupe {{ sl.label }} (Z: {{ sl.slice_index }})</div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Conclusion et Synthèse Clinique -->
+    <div class="section">
+        <div class="section-title">Conclusion Médicale</div>
+        <div class="conclusion-box">
+            <p><strong>• Volume hépatique mesuré :</strong> <strong>{{ result.liver.volume_cm3 }} cm³ (mL)</strong> (soit {{ result.liver.volume_liters }} L).</p>
+            {% if result.theoretical_volume %}
+            <p><strong>• Corrélation biométrique :</strong> Le volume mesuré représente <strong>{{ result.theoretical_volume.ratio_measured_to_theoretical_pct }}%</strong> du volume hépatique standard attendu (Formule de Vauthey, {{ result.theoretical_volume.tlv_vauthey_cm3 }} cm³ pour une surface corporelle de {{ result.theoretical_volume.bsa_m2 }} m²). <em>{{ result.theoretical_volume.interpretation }}</em>.</p>
+            {% endif %}
+            {% if result.steatosis_evaluation %}
+            <p><strong>• Atténuation parenchymateuse & Stéatose :</strong> Densité moyenne de <strong>{{ result.liver.mean_hu }} HU</strong>{% if result.liver.std_hu %} (± {{ result.liver.std_hu }} HU){% endif %}. <strong>{{ result.steatosis_evaluation.grade }}</strong> (infiltration estimée : {{ result.steatosis_evaluation.infiltration_est }}). {{ result.steatosis_evaluation.note }}
+            {% if result.steatosis_evaluation.liver_spleen_diff_hu is defined and result.steatosis_evaluation.liver_spleen_diff_hu is not none %}
+            Gradient foie-rate : {{ '%+.1f'|format(result.steatosis_evaluation.liver_spleen_diff_hu) }} HU ({{ result.steatosis_evaluation.differential_interpretation }}).
+            {% endif %}
+            </p>
+            {% endif %}
+            {% if result.hepato_splenic_ratio %}
+            <p><strong>• Balance Hépato-Splénique :</strong> Rapport volume Foie / Rate calculé à <strong>{{ result.hepato_splenic_ratio.ratio }}</strong> (Rate : {{ result.hepato_splenic_ratio.spleen_volume_cm3 }} cm³). <strong>Statut {{ result.hepato_splenic_ratio.status }}</strong> (norme adulte : {{ result.hepato_splenic_ratio.reference_range }}). <em>{{ result.hepato_splenic_ratio.interpretation }}</em>.</p>
+            {% elif result.spleen %}
+            <p><strong>• Volume splénique :</strong> {{ result.spleen.volume_cm3 }} cm³ (Densité : {{ result.spleen.mean_hu }} HU).</p>
+            {% endif %}
+            {% if result.lille_criteria %}
+            <p><strong>• Critères de résécabilité de Lille (Poids : {{ result.lille_criteria.patient_weight_kg }} kg) :</strong>
+            En cas d'hépatectomie droite (résection Seg. V-VIII), le foie restant gauche (Seg. II-IV) représente <strong>{{ result.lille_criteria.left_liver_bw_pct }}%</strong> du poids corporel ({{ '≥ 0,5% : volume suffisant sécurisé' if result.lille_criteria.left_liver_safe else '< 0,5% : risque d\'insuffisance hépatocellulaire, indication à une embolisation portale' }}). En cas de trisectionectomie droite élargie, le lobe gauche résiduel (Seg. II+III) représente <strong>{{ result.lille_criteria.left_lateral_lobe_bw_pct }}%</strong> du poids corporel ({{ '≥ 0,5% : volume sécurisé' if result.lille_criteria.left_lateral_safe else '< 0,5% : risque d\'insuffisance hépatique' }}).</p>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Signatures -->
+    <div class="signature-row">
+        <div>
+            Outil : TotalSegmentator / 3D Slicer Headless<br>
+            Validation algorithmique certifiée
+        </div>
+        <div style="text-align: right;">
+            Date et signature du radiologue / chirurgien :<br>
+            <br><br>
+            _____________________________________
+        </div>
+    </div>
+
+</body>
+</html>
